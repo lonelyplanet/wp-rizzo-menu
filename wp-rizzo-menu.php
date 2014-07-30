@@ -9,14 +9,13 @@ class RizzoMenuPlugin
 
     public function __construct()
     {
-
         $this->menu_location = 'rizzo';
 
         // Register a menu to go into the body header.
         register_nav_menu($this->menu_location, 'Rizzo Menu');
 
         // This filter is in the WP Rizzo plugin.
-        add_filter('rizzo_html_body-endpoint', array($this, 'insert_menu'), 10, 1);
+        add_filter('rizzo_html_post-header-endpoint', array($this, 'insert_menu'), 10, 1);
 
         if (is_admin()) {
             add_action('admin_init', array($this, 'admin_init'));
@@ -62,7 +61,6 @@ class RizzoMenuPlugin
 
     public function admin_init()
     {
-
         $show_nag = false;
 
         if (isset($_POST['menu-locations'][$this->menu_location])) {
@@ -94,10 +92,19 @@ class RizzoMenuPlugin
         $placeholder_text = 'Rizzo Menu';
         $placeholder_comment = '<!--' . $placeholder_text . '-->';
 
+        /*
+            Turn off php errors/warnings about the html5 elements and use libxml internal errors instead.
+            Use the libxml_get_errors() function to get error messages.
+        */
+        $use_errors = libxml_use_internal_errors(true);
+
         $dom = new \DOMDocument();
         $dom->preserveWhiteSpace = false;
-        $dom->loadHTML($html); // This may emit lots of warnings if $html isn't valid. You may want to silence them with @.
-    
+        $dom->loadHTML($html);
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($use_errors);// Set it back to what it was.
+
         $dom->getElementById('js-nav--primary')->appendChild(
             $dom->createComment($placeholder_text)
         );
@@ -108,25 +115,6 @@ class RizzoMenuPlugin
 
         include_once 'MenuWalker.php';
 
-        /*
-            'theme_location'  => '',
-            'menu'            => '',
-            'container'       => 'div',
-            'container_class' => '',
-            'container_id'    => '',
-            'menu_class'      => 'menu',
-            'menu_id'         => '',
-            'echo'            => true,
-            'fallback_cb'     => 'wp_page_menu',
-            'before'          => '',
-            'after'           => '',
-            'link_before'     => '',
-            'link_after'      => '',
-            'items_wrap'      => '<ul id="%1$s" class="%2$s">%3$s</ul>',
-            'depth'           => 0,
-            'walker'          => ''
-        */
-
         $menu = wp_nav_menu(
             array(
                 'theme_location'  => 'rizzo',
@@ -134,9 +122,6 @@ class RizzoMenuPlugin
                 'fallback_cb'     => false,
                 'container'       => false,
                 'menu_id'         => 'js-nav--primary',
-                // 'link_before'     => '<span itemprop="name">',
-                // 'link_after'      => '</span>',
-                // 'items_wrap'      => '<div itemscope="itemscope" itemtype="http://schema.org/SiteNavigationElement" role="navigation">%3$s</div>',
                 'items_wrap'      => '%3$s',
                 'depth'           => 0,
                 'walker'          => new MenuWalker()
@@ -150,4 +135,24 @@ class RizzoMenuPlugin
 
 }
 
-$wprizzomenu = new RizzoMenuPlugin();
+add_action('plugins_loaded', function () {
+
+    include __DIR__ . '/inc/RizzoHeaderWidgets.php';
+
+    $wprizzomenu = new RizzoMenuPlugin();
+
+    new RizzoHeaderWidgets(
+        array(
+            'name'          => 'Rizzo Header',
+            'id'            => 'rizzo-header',
+            'description'   => '',
+            'class'         => '',
+            'before_widget' => '<div id="%1$s" class="widget %2$s">',
+            'after_widget'  => '</div>',
+            'before_title'  => '',
+            'after_title'   => ''
+        ),
+        '<div class="wv--split--right"><div class="wv--nav--inline split--right__inner">%s</div></div>'
+    );
+
+}, 50);
