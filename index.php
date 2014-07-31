@@ -6,7 +6,7 @@ Plugin URI: http://lonelyplanet.com/
 Author: Eric King
 Author URI: http://webdeveric.com/
 Description: This plugin parses the body header from WP Rizzo and looks for menu items.
-Version: 0.1.0
+Version: 0.1.1
 */
 
 defined('ABSPATH') || exit;
@@ -30,13 +30,13 @@ if (is_admin()) {
 
     if ( ! is_plugin_active('wp-rizzo/index.php')) {
 
-        function wp_rizzo_dependency_not_met()
+        function wp_rizzo_menu_dependency_not_met()
         {
             echo '<div class="error"><p>The WP Rizzo plugin is required for this plugin to work. Please activate it first. This plugin has been deactivated.</p></div>';
             deactivate_plugins(plugin_basename(__FILE__));
             unset($_GET['activate']);
         }
-        add_action( 'admin_notices', 'wp_rizzo_dependency_not_met' );
+        add_action( 'admin_notices', 'wp_rizzo_menu_dependency_not_met' );
 
         return;
     }
