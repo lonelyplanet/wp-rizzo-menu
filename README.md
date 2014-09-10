@@ -4,14 +4,8 @@ This will insert a WordPress nav menu into the correct place in the body header 
 
 ## Requirements
 
-This plugin requires a custom body header route that provides an empty navigation area.
-This could be something like what Ben is working on: http://rizzo.lonelyplanet.com/custom/india/body
-
----
-
-The custom rizzo routes are a work in progress as of 2014-07-02.
-
-**This plugin should not be used until the custom routes are finalized.**
+This plugin requires a custom route that provides an empty navigation area.
+Please contact us to get your API endpoints.
 
 ## Installation
 
