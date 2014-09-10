@@ -3,6 +3,10 @@ namespace LonelyPlanet\Rizzo;
 
 defined('ABSPATH') || exit;
 
+// Don't run on command line unless doing cron.
+if ( php_sapi_name() === 'cli' && ! defined('DOING_CRON') )
+    return;
+
 add_action('plugins_loaded', function () {
 
     include __DIR__ . '/inc/RizzoMenuPlugin.php';
