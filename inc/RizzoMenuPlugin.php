@@ -87,6 +87,10 @@ class RizzoMenuPlugin
 
     public function insert_menu($html)
     {
+        if ( ! isset( $html ) ||  $html === '' ) {
+            return;
+        }
+
         $placeholder_text = 'Rizzo Menu';
         $placeholder_comment = '<!--' . $placeholder_text . '-->';
 
@@ -103,7 +107,15 @@ class RizzoMenuPlugin
         libxml_clear_errors();
         libxml_use_internal_errors($use_errors);// Set it back to what it was.
 
-        $dom->getElementById('js-nav--primary')->appendChild(
+        $nav = $dom->getElementById('js-nav--primary');
+
+        // Remove all child nodes so there is an empty node to hold the WP menu.
+        while ( $nav->hasChildNodes() ) {
+            $nav->removeChild( $nav->firstChild );
+        }
+
+        // This is a temporary placeholder and will be replaced below.
+        $nav->appendChild(
             $dom->createComment($placeholder_text)
         );
 
@@ -115,7 +127,7 @@ class RizzoMenuPlugin
 
         $menu = wp_nav_menu(
             array(
-                'theme_location'  => 'rizzo',
+                'theme_location'  => $this->menu_location,
                 'echo'            => false,
                 'fallback_cb'     => false,
                 'container'       => false,
