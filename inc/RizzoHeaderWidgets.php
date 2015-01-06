@@ -12,6 +12,9 @@ class RizzoHeaderWidgets extends RizzoWidgets
 
     public function insert_widget_area($html)
     {
+        if ( ! isset( $html ) ||  $html === '' ) {
+            return;
+        }
 
         $classname = 'nav--user';
         $placeholder_text = 'Rizzo Header Widgets';
